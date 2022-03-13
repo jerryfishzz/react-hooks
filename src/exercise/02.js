@@ -63,7 +63,7 @@ function Greeting({initialName = ''}) {
  */
 
 
-
+/* 
 // Extra 3
 // I don't think the defaultValue needs to have a '' as the default value
 // if I have set the default value for initialName.
@@ -102,6 +102,54 @@ const useLocalStorageState = (key, defaultValue = '') => {
 
   return [state, setState]
 }
+ */
+
+
+// Extra 4
+function useLocalStorageState(
+  key,
+  defaultValue = '',
+  // the = {} fixes the error we would get from destructuring when no argument was passed
+  // Check https://jacobparis.com/blog/destructure-arguments for a detailed explanation
+  {serialize = JSON.stringify, deserialize = JSON.parse} = {},
+) {
+  const [state, setState] = React.useState(() => {
+    const valueInLocalStorage = window.localStorage.getItem(key)
+    if (valueInLocalStorage) {
+      // the try/catch is here in case the localStorage value was set before
+      // we had the serialization in place (like we do in previous extra credits)
+      try {
+        return deserialize(valueInLocalStorage)
+      } catch (error) {
+        window.localStorage.removeItem(key)
+      }
+    }
+    return typeof defaultValue === 'function' ? defaultValue() : defaultValue
+  })
+
+  // The object created from useRef will never change 
+  // since the component is initialied
+  // regardless of rendering or re-rendering.
+  // In this case, prevKeyRef is only decided by the initial key value.
+  // After initialization, prevKeyRef won't change 
+  // even if component re-rendering from the change of key.
+  // That's why it can be used to keep the value of previous key.
+  // https://reactjs.org/docs/hooks-reference.html#useref
+  const prevKeyRef = React.useRef(key)
+
+  // Check the example at src/examples/local-state-key-change.js to visualize a key change
+  React.useEffect(() => {
+    const prevKey = prevKeyRef.current
+    if (prevKey !== key) {
+      window.localStorage.removeItem(prevKey)
+    }
+    prevKeyRef.current = key
+    window.localStorage.setItem(key, serialize(state))
+  }, [key, state, serialize])
+
+  return [state, setState]
+}
+
 
 function Greeting({initialName = ''}) {
   const [name, setName] = useLocalStorageState('name', initialName)
