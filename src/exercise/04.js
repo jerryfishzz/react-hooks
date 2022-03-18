@@ -3,10 +3,47 @@
 
 import * as React from 'react'
 
+// Extra 1
+function useLocalStorageState(
+  key,
+  defaultValue = '',
+  {serialize = JSON.stringify, deserialize = JSON.parse} = {},
+) {
+  const [state, setState] = React.useState(() => {
+    const valueInLocalStorage = window.localStorage.getItem(key)
+    if (valueInLocalStorage) {
+      try {
+        return deserialize(valueInLocalStorage)
+      } catch (error) {
+        window.localStorage.removeItem(key)
+      }
+    }
+    return typeof defaultValue === 'function' ? defaultValue() : defaultValue
+  })
+
+  const prevKeyRef = React.useRef(key)
+
+  React.useEffect(() => {
+    const prevKey = prevKeyRef.current
+    if (prevKey !== key) {
+      window.localStorage.removeItem(prevKey)
+    }
+    prevKeyRef.current = key
+    window.localStorage.setItem(key, serialize(state))
+  }, [key, state, serialize])
+
+  return [state, setState]
+}
+
+
 function Board() {
   // 🐨 squares is the state for this component. Add useState for squares
   // const squares = Array(9).fill(null)
-  const [squares, setSquares] = React.useState(Array(9).fill(null))
+  // const [squares, setSquares] = React.useState(Array(9).fill(null))
+
+  // Extra 1
+  const getSquares = () => Array(9).fill(null)
+  const [squares, setSquares] = useLocalStorageState('squares', getSquares)
 
   // 🐨 We'll need the following bits of derived state:
   // - nextValue ('X' or 'O')
@@ -47,7 +84,10 @@ function Board() {
   function restart() {
     // 🐨 reset the squares
     // 💰 `Array(9).fill(null)` will do it!
-    setSquares(Array(9).fill(null))
+    // setSquares(Array(9).fill(null))
+
+    // Extra 1
+    setSquares(getSquares())
   }
 
   function renderSquare(i) {
