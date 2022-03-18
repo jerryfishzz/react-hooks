@@ -2,7 +2,9 @@
 // http://localhost:3000/isolated/exercise/04.js
 
 import * as React from 'react'
+import { useLocalStorageState } from '../utils' // Extra 2
 
+/* 
 // Extra 1
 function useLocalStorageState(
   key,
@@ -34,7 +36,7 @@ function useLocalStorageState(
 
   return [state, setState]
 }
-
+ */
 
 function Board() {
   // 🐨 squares is the state for this component. Add useState for squares
