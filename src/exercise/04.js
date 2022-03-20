@@ -2,7 +2,7 @@
 // http://localhost:3000/isolated/exercise/04.js
 
 import * as React from 'react'
-import { useLocalStorageState } from '../utils' // Extra 2
+import { useLocalStorageState } from '../utils' // Extra 2 and 3
 
 /* 
 // Extra 1
