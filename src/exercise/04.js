@@ -240,8 +240,6 @@ function Game() {
       </li>
     )
   })
-    
-  
 
   return (
     <div className="game">
