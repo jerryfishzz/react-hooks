@@ -11,6 +11,7 @@ import {fetchPokemon, PokemonDataView, PokemonForm, PokemonInfoFallback} from '.
 function PokemonInfo({pokemonName}) {
   // 🐨 Have state for the pokemon (null)
   const [pokemon, setPokemon] = React.useState(null)
+  const [error, setError] = React.useState(null)
 
   // 🐨 use React.useEffect where the callback should be called whenever the
   // pokemon name changes.
@@ -22,15 +23,19 @@ function PokemonInfo({pokemonName}) {
     // 🐨 before calling `fetchPokemon`, clear the current pokemon state by setting it to null.
     // (This is to enable the loading state when switching between different pokemon.)
     setPokemon(null)
+
+    // Extra 1: this is my way to handle error
+    setError(null)
     
     // 💰 Use the `fetchPokemon` function to fetch a pokemon by its name:
     //   fetchPokemon('Pikachu').then(
     //     pokemonData => {/* update all the state here */},
     //   )
     fetchPokemon(pokemonName)
-      .then(pokemonData => {
-        setPokemon(pokemonData)
-      })
+      .then(
+        pokemon => setPokemon(pokemon),
+        error => setError(error)
+      )
     
   }, [pokemonName, setPokemon])
   
@@ -38,11 +43,22 @@ function PokemonInfo({pokemonName}) {
     //   1. no pokemonName: 'Submit a pokemon'
     //   2. pokemonName but no pokemon: <PokemonInfoFallback name={pokemonName} />
     //   3. pokemon: <PokemonDataView pokemon={pokemon} />
-  return !pokemonName
-    ? 'Submit a pokemon'
-    : !pokemon
-      ? <PokemonInfoFallback name={pokemonName} />
-      : <PokemonDataView pokemon={pokemon} />
+
+  // Extra 1: this is my way to handle error,
+  // a little diffrent from the tutorial.
+  return ( 
+    <>
+      {!pokemonName
+        ? 'Submit a pokemon'
+        : !pokemon
+          ? <PokemonInfoFallback name={pokemonName} />
+          : <PokemonDataView pokemon={pokemon} />}
+      {error && 
+        <div role="alert">
+          There was an error: <pre style={{whiteSpace: 'normal'}}>{error.message}</pre>
+        </div>}
+    </>
+  )
 
   // 💣 remove this
   // return 'TODO'
