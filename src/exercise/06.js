@@ -117,6 +117,7 @@ function PokemonInfo({pokemonName}) {
  */
 
 
+/* 
 // Extra 3
 const initialState = {
   pokemon: null,
@@ -165,7 +166,56 @@ function PokemonInfo({pokemonName}) {
 
   throw new Error('This should be impossible')
 }
+ */
 
+
+// Extra 4
+function PokemonInfo({pokemonName}) {
+  const [state, setState] = React.useState({
+    pokemon: null,
+    error: null,
+    status: 'idle'
+  })
+
+  React.useEffect(() => {
+    if (!pokemonName) return
+    
+    setState({...state, status: 'pending'})
+    
+    fetchPokemon(pokemonName)
+      .then(
+        pokemon => {
+          setState({...state, status: 'resolved', pokemon})
+        },
+        error => {
+          setState({...state, status: 'rejected', error})
+        }
+      )
+    
+  }, [pokemonName])
+
+  const { status, pokemon, error } = state
+  
+  if (status === 'idle') return 'Submit a pokemon'
+
+  if (status === 'pending') return <PokemonInfoFallback name={pokemonName} />
+
+  if (status === 'resolved') return <PokemonDataView pokemon={pokemon} />
+
+  if (status === 'rejected') throw error
+
+  throw new Error('This should be impossible')
+}
+
+// Extra 4
+function ErrorFallback({ error }) {
+  return (
+    <div role="alert">
+      There was an error:{' '}
+      <pre style={{whiteSpace: 'normal'}}>{error.message}</pre>
+    </div>
+  )
+}
 
 function App() {
   const [pokemonName, setPokemonName] = React.useState('')
@@ -179,10 +229,51 @@ function App() {
       <PokemonForm pokemonName={pokemonName} onSubmit={handleSubmit} />
       <hr />
       <div className="pokemon-info">
-        <PokemonInfo pokemonName={pokemonName} />
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <PokemonInfo pokemonName={pokemonName} />
+        </ErrorBoundary>
       </div>
     </div>
   )
+}
+
+// Extra 4
+// This can solve all the errors from deliberately 
+// thrown from the component or unexpected delivered 
+// during runtime
+class ErrorBoundary extends React.Component {
+  state = {
+    error: null,
+    hasError: false
+  }
+
+  static getDerivedStateFromError(error) {    
+    // Update state so the next render will show the fallback UI.  
+    
+    let hasError = false
+    if (error) hasError = true
+
+    return { 
+      error,
+      hasError 
+    };    
+  }
+
+  render() {
+    const { error } = this.state
+
+    // FallbackComponent makes error boundary generic
+    const { FallbackComponent } = this.props
+
+    if (error) {      
+      // You can render any custom fallback UI      
+      return (
+        <FallbackComponent error={error} />
+      )    
+    }
+    
+    return this.props.children; 
+  }
 }
 
 export default App
