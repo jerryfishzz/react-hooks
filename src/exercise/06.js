@@ -65,6 +65,8 @@ import {fetchPokemon, PokemonDataView, PokemonForm, PokemonInfoFallback} from '.
 //   // return 'TODO'
 // }
 
+
+/* 
 // Extra 2
 function PokemonInfo({pokemonName}) {
   const [pokemon, setPokemon] = React.useState(null)
@@ -112,6 +114,58 @@ function PokemonInfo({pokemonName}) {
   // This throw is from tutorial
   throw new Error('This should be impossible')
 }
+ */
+
+
+// Extra 3
+const initialState = {
+  pokemon: null,
+  error: null,
+  status: 'idle'
+}
+
+function PokemonInfo({pokemonName}) {
+  const [state, setState] = React.useState(initialState)
+  console.log(state)
+
+  React.useEffect(() => {
+    if (!pokemonName) return
+    
+    // Note, I update all the state properties but tutorial not
+    setState({...state, status: 'pending'})
+    
+    fetchPokemon(pokemonName)
+      .then(
+        pokemon => {
+          setState({...state, status: 'resolved', pokemon})
+        },
+        error => {
+          setState({...state, status: 'rejected', error})
+        }
+      )
+    
+  }, [pokemonName])
+
+  const { status, pokemon, error } = state
+  
+  if (status === 'idle') return 'Submit a pokemon'
+
+  if (status === 'pending') return <PokemonInfoFallback name={pokemonName} />
+
+  if (status === 'resolved') return <PokemonDataView pokemon={pokemon} />
+
+  if (status === 'rejected') {
+    return (
+      <div role="alert">
+        There was an error:{' '}
+        <pre style={{whiteSpace: 'normal'}}>{error.message}</pre>
+      </div>
+    )
+  }
+
+  throw new Error('This should be impossible')
+}
+
 
 function App() {
   const [pokemonName, setPokemonName] = React.useState('')
