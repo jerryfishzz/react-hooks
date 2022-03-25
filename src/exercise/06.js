@@ -191,7 +191,8 @@ function PokemonInfo({pokemonName}) {
           setState({...state, status: 'rejected', error})
         }
       )
-    
+  
+  // eslint-disable-next-line
   }, [pokemonName])
 
   const { status, pokemon, error } = state
@@ -229,7 +230,7 @@ function App() {
       <PokemonForm pokemonName={pokemonName} onSubmit={handleSubmit} />
       <hr />
       <div className="pokemon-info">
-        <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <ErrorBoundary FallbackComponent={ErrorFallback} key={pokemonName}>
           <PokemonInfo pokemonName={pokemonName} />
         </ErrorBoundary>
       </div>
