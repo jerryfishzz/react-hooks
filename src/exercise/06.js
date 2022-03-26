@@ -7,6 +7,7 @@ import * as React from 'react'
 // PokemonInfoFallback: the thing we show while we're loading the pokemon info
 // PokemonDataView: the stuff we use to display the pokemon info
 import {fetchPokemon, PokemonDataView, PokemonForm, PokemonInfoFallback} from '../pokemon'
+import {ErrorBoundary} from 'react-error-boundary' // Extra 6
 
 // // Exercise and extra 1
 // function PokemonInfo({pokemonName}) {
@@ -238,6 +239,8 @@ function App() {
   )
 }
 
+
+/* 
 // Extra 4
 // This can solve all the errors from deliberately 
 // thrown from the component or unexpected delivered 
@@ -276,5 +279,6 @@ class ErrorBoundary extends React.Component {
     return this.props.children; 
   }
 }
+ */
 
 export default App
