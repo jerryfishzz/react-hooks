@@ -170,12 +170,12 @@ function PokemonInfo({pokemonName}) {
  */
 
 
-// Extra 4
+// Extra 4, 5, 6, and 7
 function PokemonInfo({pokemonName}) {
   const [state, setState] = React.useState({
     pokemon: null,
     error: null,
-    status: 'idle'
+    status: pokemonName ? 'pending' : 'idle'
   })
 
   React.useEffect(() => {
@@ -209,7 +209,9 @@ function PokemonInfo({pokemonName}) {
   throw new Error('This should be impossible')
 }
 
-// Extra 4
+
+/* 
+// Extra 4, 5, and 6
 function ErrorFallback({ error }) {
   return (
     <div role="alert">
@@ -219,6 +221,47 @@ function ErrorFallback({ error }) {
   )
 }
 
+ */
+
+
+// Extra 7
+// The aim to reset ErrorBoundary state manually is to prevent
+// unnecessary unmount when we just change the name without any error produced.
+function ErrorFallback({ error, resetErrorBoundary }) {
+  return (
+    <div role="alert">
+      There was an error:{' '}
+      <pre style={{whiteSpace: 'normal'}}>{error.message}</pre>
+      <button onClick={resetErrorBoundary}>Try again</button>
+    </div>
+  )
+}
+
+
+/* 
+// Exercise; extra 1, 2, and 3
+function App() {
+  const [pokemonName, setPokemonName] = React.useState('')
+
+  function handleSubmit(newPokemonName) {
+    setPokemonName(newPokemonName)
+  }
+
+  return (
+    <div className="pokemon-info-app">
+      <PokemonForm pokemonName={pokemonName} onSubmit={handleSubmit} />
+      <hr />
+      <div className="pokemon-info">
+        <PokemonInfo pokemonName={pokemonName} />
+      </div>
+    </div>
+  )
+}
+ */
+
+
+/* 
+// Extra 4, 5, and 6
 function App() {
   const [pokemonName, setPokemonName] = React.useState('')
 
@@ -232,6 +275,33 @@ function App() {
       <hr />
       <div className="pokemon-info">
         <ErrorBoundary FallbackComponent={ErrorFallback} key={pokemonName}>
+          <PokemonInfo pokemonName={pokemonName} />
+        </ErrorBoundary>
+      </div>
+    </div>
+  )
+}
+ */
+
+
+// Extra 7
+function App() {
+  const [pokemonName, setPokemonName] = React.useState('')
+
+  function handleSubmit(newPokemonName) {
+    setPokemonName(newPokemonName)
+  }
+
+  // onReset is to release the wrong name 
+  // when the ErrorBoundary component is reset.
+  return (
+    <div className="pokemon-info-app">
+      <PokemonForm pokemonName={pokemonName} onSubmit={handleSubmit} />
+      <hr />
+      <div className="pokemon-info">
+        <ErrorBoundary 
+          FallbackComponent={ErrorFallback} 
+          onReset={() => setPokemonName('')}>
           <PokemonInfo pokemonName={pokemonName} />
         </ErrorBoundary>
       </div>
